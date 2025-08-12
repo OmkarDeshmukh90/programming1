@@ -335,12 +335,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Next.js](https://nextjs.org/) - React framework
 - [Tailwind CSS](https://tailwindcss.com/) - CSS framework
 
-## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/ai-coding-platform/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/ai-coding-platform/discussions)
-- **Email**: support@codingplatform.com
 
 ---
 
-**Made with ❤️ by the CodeAI Team**
+**Made with ❤️ by the Programming+ Team**
