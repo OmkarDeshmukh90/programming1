@@ -72,7 +72,7 @@ if [ ! -f .env.local ]; then
     cat > .env.local << EOF
 # Frontend Environment Configuration
 NEXT_PUBLIC_API_URL=http://localhost:5000
-NEXT_PUBLIC_APP_NAME=CodeAI
+NEXT_PUBLIC_APP_NAME=Programming+
 NEXT_PUBLIC_APP_VERSION=1.0.0
 EOF
     echo "✅ Created .env.local"

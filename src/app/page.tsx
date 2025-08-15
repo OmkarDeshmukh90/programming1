@@ -185,7 +185,7 @@ export default function HomePage() {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <Code className="w-6 h-6 text-primary-400" />
-                <span className="text-lg font-bold">CodeAI</span>
+                <span className="text-lg font-bold">Programming+</span>
               </div>
               <p className="text-gray-400">
                 Empowering developers to learn and grow with AI-powered coding practice.
@@ -217,7 +217,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 CodeAI. All rights reserved.</p>
+            <p>&copy; 2024 Programming+. All rights reserved.</p>
           </div>
         </div>
       </footer>

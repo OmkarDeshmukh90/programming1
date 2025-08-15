@@ -48,4 +48,47 @@
   .text-gradient {
     @apply bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent;
   }
+  
+  .slider {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+  }
+  
+  .slider::-webkit-slider-track {
+    background: #4B5563;
+    height: 4px;
+    border-radius: 2px;
+  }
+  
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    background: #FFFFFF;
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  .slider::-moz-range-track {
+    background: #4B5563;
+    height: 4px;
+    border-radius: 2px;
+  }
+  
+  .slider::-moz-range-thumb {
+    background: #FFFFFF;
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+  }
+}
+
+.ai-suggestion-highlight {
+  background: #fffbe6 !important;
+  border-left: 3px solid #fbbf24 !important;
 }

@@ -34,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const verifyToken = async (token: string) => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/verify`, {
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

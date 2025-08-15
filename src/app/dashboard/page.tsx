@@ -91,12 +91,15 @@ export default function DashboardPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
               <Code className="w-8 h-8 text-primary-600" />
-              <span className="text-xl font-bold text-gray-900">CodeAI</span>
+              <span className="text-xl font-bold text-gray-900">Programming+</span>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">Welcome, {user.username}!</span>
-              <button className="btn-secondary">Profile</button>
-              <button className="btn-primary">New Problem</button>
+              <Link href="/profile" className="btn-secondary">Profile</Link>
+              <Link href="/collaborate" className="btn-secondary">Collaborate</Link>
+              <Link href="/leaderboard" className="btn-secondary">Leaderboard</Link>
+              <Link href="/learn" className="btn-secondary">Learning</Link>
+              <Link href="/problems" className="btn-primary">New Problem</Link>
             </div>
           </div>
         </div>
@@ -253,6 +256,10 @@ export default function DashboardPage() {
                 <Link href="/learn" className="flex items-center space-x-3 p-3 bg-success-50 rounded-lg hover:bg-success-100 transition-colors">
                   <BookOpen className="w-5 h-5 text-success-600" />
                   <span className="font-medium text-success-700">Learning Path</span>
+                </Link>
+                <Link href="/collaborate" className="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                  <Users className="w-5 h-5 text-purple-600" />
+                  <span className="font-medium text-purple-700">Collaborate</span>
                 </Link>
                 <Link href="/leaderboard" className="flex items-center space-x-3 p-3 bg-warning-50 rounded-lg hover:bg-warning-100 transition-colors">
                   <Users className="w-5 h-5 text-warning-600" />

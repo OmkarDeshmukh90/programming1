@@ -10,10 +10,12 @@ interface CodeEditorProps {
   onCodeChange: (code: string) => void
   onRunCode: () => void
   onSubmit: () => void
+  onGetAIFeedback: () => void
   language: string
   code: string
   isRunning: boolean
   isSubmitted: boolean
+  isGettingAIFeedback: boolean
   testResults?: {
     passed: number
     total: number
@@ -25,9 +27,14 @@ interface CodeEditorProps {
     }>
   }
   aiFeedback?: {
-    suggestions: string[]
+    suggestions: Array<{
+      text: string
+      reason: string
+      lines: number[]
+    }>
     improvements: string[]
     score: number
+    assessment?: string
   }
 }
 
@@ -44,16 +51,20 @@ export default function CodeEditor({
   onCodeChange,
   onRunCode,
   onSubmit,
+  onGetAIFeedback,
   language,
   code,
   isRunning,
   isSubmitted,
+  isGettingAIFeedback,
   testResults,
   aiFeedback
 }: CodeEditorProps) {
   const [selectedLanguage, setSelectedLanguage] = useState(language)
   const [showAI, setShowAI] = useState(false)
   const editorRef = useRef<any>(null)
+  const monacoRef = useRef<any>(null)
+  const [decorations, setDecorations] = useState<string[]>([]);
 
   useEffect(() => {
     if (editorRef.current) {
@@ -64,8 +75,38 @@ export default function CodeEditor({
     }
   }, [selectedLanguage, problem.starterCode])
 
-  const handleEditorDidMount = (editor: any) => {
+  useEffect(() => {
+    if (!editorRef.current || !aiFeedback?.suggestions) return;
+
+    // Remove previous decorations
+    setDecorations(editorRef.current.deltaDecorations(decorations, []));
+
+    // Add new decorations for each suggestion's lines
+    const newDecorations = aiFeedback.suggestions.flatMap(suggestion =>
+      (suggestion.lines || []).map(line => ({
+        range: monacoRef.current
+          ? new monacoRef.current.Range(line, 1, line, 1)
+          : { startLineNumber: line, startColumn: 1, endLineNumber: line, endColumn: 1 },
+        options: {
+          isWholeLine: true,
+          className: 'ai-suggestion-highlight',
+          hoverMessage: { value: `**AI Suggestion:** ${suggestion.text}\n\n**Why:** ${suggestion.reason}` }
+        }
+      }))
+    );
+
+    setDecorations(editorRef.current.deltaDecorations(decorations, newDecorations));
+
+    return () => {
+      if (editorRef.current) {
+        editorRef.current.deltaDecorations(decorations, []);
+      }
+    };
+  }, [aiFeedback, editorRef.current]);
+
+  const handleEditorDidMount = (editor: any, monaco: any) => {
     editorRef.current = editor
+    monacoRef.current = monaco
     editor.focus()
   }
 
@@ -113,7 +154,7 @@ export default function CodeEditor({
   return (
     <div className="h-full flex flex-col bg-white border border-gray-200 rounded-lg overflow-hidden">
       {/* Editor Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50 flex-shrink-0">
         <div className="flex items-center space-x-4">
           <h3 className="text-lg font-semibold text-gray-900">Code Editor</h3>
           
@@ -147,15 +188,27 @@ export default function CodeEditor({
             <Download className="w-4 h-4" />
           </button>
           <button
+            onClick={onGetAIFeedback}
+            disabled={isGettingAIFeedback || !code.trim()}
+            className={`p-2 rounded-md transition-colors ${
+              showAI 
+                ? 'bg-primary-100 text-primary-700' 
+                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
+            title="Get AI Feedback"
+          >
+            <Brain className="w-4 h-4" />
+          </button>
+          <button
             onClick={() => setShowAI(!showAI)}
             className={`p-2 rounded-md transition-colors ${
               showAI 
                 ? 'bg-primary-100 text-primary-700' 
                 : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
             }`}
-            title="AI Feedback"
+            title="Show/Hide AI Feedback"
           >
-            <Brain className="w-4 h-4" />
+            <Settings className="w-4 h-4" />
           </button>
           <button
             onClick={onRunCode}
@@ -176,9 +229,9 @@ export default function CodeEditor({
         </div>
       </div>
 
-      <div className="flex-1 flex">
+      <div className="flex-1 flex min-h-0">
         {/* Code Editor */}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <Editor
             height="100%"
             language={selectedLanguage}
@@ -206,7 +259,7 @@ export default function CodeEditor({
 
         {/* AI Feedback Panel */}
         {showAI && (
-          <div className="w-80 border-l border-gray-200 bg-gray-50 p-4 overflow-y-auto">
+          <div className="w-80 border-l border-gray-200 bg-gray-50 p-4 overflow-y-auto flex-shrink-0 lg:block hidden">
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-lg font-semibold text-gray-900 flex items-center">
                 <Brain className="w-5 h-5 mr-2 text-primary-600" />
@@ -237,14 +290,19 @@ export default function CodeEditor({
                 </div>
 
                 {/* Suggestions */}
-                {aiFeedback.suggestions.length > 0 && (
+                {aiFeedback?.suggestions && aiFeedback.suggestions.length > 0 && (
                   <div className="bg-white p-3 rounded-lg border">
                     <h5 className="font-medium text-gray-900 mb-2">Suggestions</h5>
-                    <ul className="space-y-1">
-                      {aiFeedback.suggestions.map((suggestion, index) => (
-                        <li key={index} className="text-sm text-gray-700 flex items-start">
-                          <span className="text-primary-500 mr-2">•</span>
-                          {suggestion}
+                    <ul className="space-y-2">
+                      {aiFeedback.suggestions.map((suggestion, idx) => (
+                        <li key={idx} className="text-sm text-gray-700 flex flex-col mb-2">
+                          <div className="font-medium text-gray-900">{suggestion.text}</div>
+                          <div className="text-xs text-gray-600 mb-1">{suggestion.reason}</div>
+                          <div className="text-xs text-primary-600">
+                            {suggestion.lines && suggestion.lines.length > 0 && (
+                              <>Line{suggestion.lines.length > 1 ? 's' : ''}: {suggestion.lines.join(', ')}</>
+                            )}
+                          </div>
                         </li>
                       ))}
                     </ul>
@@ -269,9 +327,16 @@ export default function CodeEditor({
             ) : (
               <div className="text-center py-8">
                 <Brain className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-gray-500 text-sm">
-                  Run your code to get AI-powered feedback and suggestions for improvement.
+                <p className="text-gray-500 text-sm mb-4">
+                  Click the AI Feedback button to get intelligent suggestions for your code.
                 </p>
+                <button
+                  onClick={onGetAIFeedback}
+                  disabled={isGettingAIFeedback || !code.trim()}
+                  className="btn-primary px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isGettingAIFeedback ? 'Analyzing...' : 'Get AI Feedback'}
+                </button>
               </div>
             )}
           </div>
@@ -280,7 +345,7 @@ export default function CodeEditor({
 
       {/* Test Results */}
       {testResults && (
-        <div className="border-t border-gray-200 bg-white p-4">
+        <div className="border-t border-gray-200 bg-white p-4 flex-shrink-0">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-lg font-semibold text-gray-900">Test Results</h4>
             <div className="flex items-center space-x-2">
@@ -322,6 +387,75 @@ export default function CodeEditor({
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Mobile AI Feedback Panel */}
+      {showAI && aiFeedback && (
+        <div className="border-t border-gray-200 bg-gray-50 p-4 lg:hidden">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-lg font-semibold text-gray-900 flex items-center">
+              <Brain className="w-5 h-5 mr-2 text-primary-600" />
+              AI Feedback
+            </h4>
+            <button
+              onClick={() => setShowAI(false)}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <XCircle className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {/* Score */}
+            <div className="bg-white p-3 rounded-lg border">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700">Code Quality Score</span>
+                <span className="text-lg font-bold text-primary-600">{aiFeedback.score}/100</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-primary-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${aiFeedback.score}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Suggestions */}
+            {aiFeedback?.suggestions && aiFeedback.suggestions.length > 0 && (
+              <div className="bg-white p-3 rounded-lg border">
+                <h5 className="font-medium text-gray-900 mb-2">Suggestions</h5>
+                <ul className="space-y-2">
+                  {aiFeedback.suggestions.map((suggestion, idx) => (
+                    <li key={idx} className="text-sm text-gray-700 flex flex-col mb-2">
+                      <div className="font-medium text-gray-900">{suggestion.text}</div>
+                      <div className="text-xs text-gray-600 mb-1">{suggestion.reason}</div>
+                      <div className="text-xs text-primary-600">
+                        {suggestion.lines && suggestion.lines.length > 0 && (
+                          <>Line{suggestion.lines.length > 1 ? 's' : ''}: {suggestion.lines.join(', ')}</>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Improvements */}
+            {aiFeedback.improvements.length > 0 && (
+              <div className="bg-white p-3 rounded-lg border">
+                <h5 className="font-medium text-gray-900 mb-2">Areas for Improvement</h5>
+                <ul className="space-y-1">
+                  {aiFeedback.improvements.map((improvement, index) => (
+                    <li key={index} className="text-sm text-gray-700 flex items-start">
+                      <span className="text-warning-500 mr-2">•</span>
+                      {improvement}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       )}

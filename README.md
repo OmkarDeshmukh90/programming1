@@ -1,6 +1,6 @@
-# 🚀 AI-Integrated Coding Practice Platform
+# 🚀 Programming+
 
-A modern, full-stack web application that combines coding practice with AI-powered feedback and personalized learning paths. Built with Next.js, Node.js, and OpenAI integration.
+Programming+ is a modern, full-stack web application that combines coding practice with AI-powered feedback and personalized learning paths. Built with Next.js, Node.js, and OpenAI integration.
 
 ## ✨ Features
 
@@ -343,4 +343,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with ❤️ by the CodeAI Team**
+**Made with ❤️ by the Programming+ Team**

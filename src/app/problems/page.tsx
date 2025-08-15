@@ -181,11 +181,10 @@ export default function ProblemsPage() {
     if (filters.difficulty) {
       filtered = filtered.filter(problem => problem.difficulty === filters.difficulty)
     }
-
     // Topics filter
-    if (filters.topics.length > 0) {
+    if ((filters.topics ?? []).length > 0) {
       filtered = filtered.filter(problem =>
-        filters.topics!.some(topic => problem.topics.includes(topic))
+        (filters.topics ?? []).some(topic => problem.topics.includes(topic))
       )
     }
 
@@ -275,7 +274,7 @@ export default function ProblemsPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
               <Code className="w-8 h-8 text-primary-600" />
-              <span className="text-xl font-bold text-gray-900">CodeAI</span>
+              <span className="text-xl font-bold text-gray-900">Programming+</span>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">Welcome, {user.username}!</span>
@@ -374,12 +373,12 @@ export default function ProblemsPage() {
                       <label key={topic} className="flex items-center">
                         <input
                           type="checkbox"
-                          checked={filters.topics.includes(topic)}
+                          checked={(filters.topics ?? []).includes(topic)}
                           onChange={(e) => {
                             if (e.target.checked) {
-                              handleFilterChange('topics', [...filters.topics, topic])
+                              handleFilterChange('topics', [...(filters.topics ?? []), topic])
                             } else {
-                              handleFilterChange('topics', filters.topics.filter(t => t !== topic))
+                              handleFilterChange('topics', (filters.topics ?? []).filter(t => t !== topic))
                             }
                           }}
                           className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"

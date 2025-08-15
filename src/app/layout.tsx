@@ -7,8 +7,8 @@ import { AuthProvider } from '@/components/providers/AuthProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'AI Coding Practice Platform',
-  description: 'Learn coding with AI-powered feedback and personalized learning paths',
+  title: 'Programming+',
+  description: 'Programming+ — Learn coding with AI-powered feedback and personalized learning paths',
 }
 
 export default function RootLayout({

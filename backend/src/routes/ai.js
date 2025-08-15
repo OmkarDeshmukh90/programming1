@@ -113,17 +113,22 @@ ${code}
 
 ${testResults ? `Test Results: ${JSON.stringify(testResults)}` : ''}
 
-Provide:
-1. Code quality score (0-100)
-2. 3-5 specific suggestions for improvement
-3. 2-3 areas that need improvement
-4. Overall assessment
+For each suggestion, include:
+- "text": The suggestion itself
+- "reason": Why this suggestion is important (explain the code smell or issue)
+- "lines": The line number(s) in the code this suggestion refers to (as an array, e.g. [3, 4])
 
 Format as JSON:
 {
   "score": number,
-  "suggestions": ["suggestion1", "suggestion2"],
-  "improvements": ["improvement1", "improvement2"],
+  "suggestions": [
+    {
+      "text": "suggestion1",
+      "reason": "why this suggestion is important",
+      "lines": [3, 4]
+    }
+  ],
+  "improvements": [...],
   "assessment": "overall assessment"
 }`;
 
@@ -148,9 +153,11 @@ Format as JSON:
       feedback = {
         score: 75,
         suggestions: [
-          "Consider adding more comments to explain complex logic",
-          "Review variable naming conventions",
-          "Check for potential edge cases"
+          {
+            text: "Consider adding more comments to explain complex logic",
+            reason: "Comments improve code readability for others and your future self.",
+            lines: [2, 3]
+          }
         ],
         improvements: [
           "Code structure could be more modular",

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import CodeEditor from '@/components/CodeEditor'
+import VideoExplanations from '@/components/VideoExplanations'
 import { Problem } from '@/types/problem'
 import toast from 'react-hot-toast'
 
@@ -30,6 +31,7 @@ export default function ProblemPage() {
   const [language, setLanguage] = useState('python')
   const [isRunning, setIsRunning] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isGettingAIFeedback, setIsGettingAIFeedback] = useState(false)
   const [testResults, setTestResults] = useState<any>(null)
   const [aiFeedback, setAiFeedback] = useState<any>(null)
   const [showHints, setShowHints] = useState(false)
@@ -219,6 +221,49 @@ You can return the answer in any order.`,
     }
   }
 
+  const handleGetAIFeedback = async () => {
+    if (!code.trim()) {
+      toast.error('Please write some code first')
+      return
+    }
+
+    setIsGettingAIFeedback(true)
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        throw new Error('No authentication token')
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai/code-feedback`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+                  body: JSON.stringify({
+            code: code,
+            language: language,
+            problemDescription: problem?.description || '',
+            testResults: testResults
+          })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Failed to get AI feedback')
+      }
+
+      setAiFeedback(data.feedback)
+      toast.success('AI feedback generated successfully!')
+    } catch (error) {
+      console.error('AI feedback error:', error)
+      toast.error('Failed to get AI feedback. Please try again.')
+    } finally {
+      setIsGettingAIFeedback(false)
+    }
+  }
+
   const handleSubmit = async () => {
     if (!code.trim()) {
       toast.error('Please write some code first')
@@ -269,7 +314,7 @@ You can return the answer in any order.`,
               </Link>
               <div className="flex items-center space-x-2">
                 <Code className="w-6 h-6 text-primary-600" />
-                <span className="text-lg font-bold text-gray-900">CodeAI</span>
+                <span className="text-lg font-bold text-gray-900"></span>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -281,9 +326,9 @@ You can return the answer in any order.`,
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-200px)]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[600px]">
           {/* Problem Description */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6 overflow-y-auto">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 overflow-y-auto max-h-[80vh] lg:max-h-none lg:sticky lg:top-6">
             <div className="mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-bold text-gray-900">{problem.title}</h1>
@@ -427,21 +472,27 @@ You can return the answer in any order.`,
           </div>
 
           {/* Code Editor */}
-          <div className="h-full">
+          <div className="min-h-[600px] lg:min-h-[700px]">
             <CodeEditor
               problem={problem}
               onCodeChange={handleCodeChange}
               onRunCode={handleRunCode}
               onSubmit={handleSubmit}
+              onGetAIFeedback={handleGetAIFeedback}
               language={language}
               code={code}
               isRunning={isRunning}
               isSubmitted={isSubmitted}
+              isGettingAIFeedback={isGettingAIFeedback}
               testResults={testResults}
               aiFeedback={aiFeedback}
             />
           </div>
         </div>
+      </div>
+      {/* Video explanations */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mt-8">
+        <VideoExplanations problemId={String(params.id)} problemTitle={problem.title} />
       </div>
     </div>
   )

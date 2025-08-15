@@ -10,7 +10,6 @@ let users = [
     id: 1,
     username: 'demo_user',
     email: 'demo@example.com',
-    password: 'demouser123',
     profile: {
       name: 'Demo User',
       bio: 'Learning to code!',

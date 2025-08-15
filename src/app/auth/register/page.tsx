@@ -62,7 +62,7 @@ export default function RegisterPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center space-x-2 mb-6">
             <Code className="w-8 h-8 text-primary-600" />
-            <span className="text-2xl font-bold text-gray-900">CodeAI</span>
+            <span className="text-2xl font-bold text-gray-900">Programming+</span>
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Create your account</h1>
           <p className="text-gray-600">Start your coding journey today</p>
